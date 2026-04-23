@@ -5,8 +5,6 @@
 
 // 特殊数据结构体声明
 #include "DS3231.h"
-// 获取数据适配器
-#include "Sensor_Adapters.h"
 
 typedef enum {
     SENSOR_DS3231,
@@ -28,7 +26,7 @@ typedef struct {
     int (*init)(void *handle); // 初始化函数指针
     void (*run)(void *handle);  // 状态机驱动函数指针
     int (*if_ready)(void *handle); // 数据就绪检查函数指针，返回0表示数据准备好
-    int (*get_data)(void *handle, Sensors_Data *data, const void *opts); // 获取数据函数指针，data为输出参数
+    int (*get_data)(void *handle, Sensors_Data *data); // 获取数据函数指针，data为输出参数
 } Sensors_Ops;
 
 typedef struct {
@@ -45,7 +43,7 @@ typedef struct {
 } Sensors_Manager;
 
 // 传感器管理器接口
-void Sensors_Manager_Init(Sensors_Manager *manager);
+int Sensors_Manager_Init(Sensors_Manager *manager);
 // 运行状态机，非阻塞，需定期调用
 void Sensors_Manager_Run(Sensors_Manager *manager);
 // 检查是否有数据准备好，返回0表示有数据

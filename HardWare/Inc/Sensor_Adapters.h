@@ -4,10 +4,10 @@
 
 #include "Sensor_Manage.h"
 
-int ds18b20_get_adapter(void *handle, Sensors_Data *data, const void *opts);
-int dht22_get_adapter(void *handle, Sensors_Data *data, const void *opts);
-int soil_humidity_get_adapter(void *handle, Sensors_Data *data, const void *opts);
-int gy30_get_adapter(void *handle, Sensors_Data *data, const void *opts);
-int ds3231_get_adapter(void *handle, Sensors_Data *data, const void *opts);
+int ds18b20_get_adapter(void *handle, Sensors_Data *data);
+int dht22_get_adapter(void *handle, Sensors_Data *data);
+int soil_humidity_get_adapter(void *handle, Sensors_Data *data);
+int gy30_get_adapter(void *handle, Sensors_Data *data);
+int ds3231_get_adapter(void *handle, Sensors_Data *data);
 
 #endif // SENSOR_ADAPTERS_H

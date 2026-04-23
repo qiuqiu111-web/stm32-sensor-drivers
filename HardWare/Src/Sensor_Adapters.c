@@ -5,7 +5,7 @@
 #include "GY30.h"
 #include "DS3231.h"
 
-int ds18b20_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
+int ds18b20_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
     float temp = 0.0f;
     int ret = ds18b20_get((DS18B20_Handle*)handle, &temp);
@@ -13,7 +13,7 @@ int ds18b20_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
     return ret;
 }
 
-int dht22_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
+int dht22_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
     float temp = 0.0f, hum = 0.0f;
     int ret = dht22_get((DHT22_Handle*)handle, &temp, &hum);
@@ -24,7 +24,7 @@ int dht22_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
     return ret;
 }
 
-int soil_humidity_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
+int soil_humidity_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
     float hum = 0.0f;
     int ret = soil_humidity_get((SoilHumidity_Handle*)handle, &hum);
@@ -32,7 +32,7 @@ int soil_humidity_get_adapter(void *handle, Sensors_Data *data, const void *opts
     return ret;
 }
 
-int gy30_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
+int gy30_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
     float lux = 0.0f;
     int ret = gy30_get((GY30_Handle*)handle, &lux);
@@ -40,7 +40,7 @@ int gy30_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
     return ret;
 }
 
-int ds3231_get_adapter(void *handle, Sensors_Data *data, const void *opts) {
+int ds3231_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
     DS3231_Time tm = {0};
     int ret = ds3231_get_time((DS3231_Handle*)handle, &tm);

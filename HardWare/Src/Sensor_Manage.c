@@ -1,4 +1,5 @@
 #include "Sensor_Manage.h"
+#include "Sensor_Adapters.h"
 
 // 此处添加其他传感器的头文件-----------------------------------------
 #include "DS3231.h" // 时钟传感器，获取时间和温度，I2C协议
@@ -53,35 +54,35 @@ static int _add_sensor(Sensors_Manager *manager, eSensorsType type, void *handle
     // 根据传感器类型设置对应的操作函数
     switch (type) {
         case SENSOR_DS3231:
-            manager->sensors[manager->sensor_count].ops = (Sensor_Example) {
+            manager->sensors[manager->sensor_count] = (Sensor_Example) {
                 .type = SENSOR_DS3231,
                 .handle = (DS3231_Handle*)handle,
                 .ops = &ds3231_ops,
             };
             break;
         case SENSOR_DHT22:
-            manager->sensors[manager->sensor_count].ops = (Sensor_Example) {
+            manager->sensors[manager->sensor_count] = (Sensor_Example) {
                 .type = SENSOR_DHT22,
                 .handle = (DHT22_Handle*)handle,
                 .ops = &dht22_ops,
             };
             break;
         case SENSOR_DS18B20:
-            manager->sensors[manager->sensor_count].ops = (Sensor_Example) {
+            manager->sensors[manager->sensor_count] = (Sensor_Example) {
                 .type = SENSOR_DS18B20,
                 .handle = (DS18B20_Handle*)handle,
                 .ops = &ds18b20_ops,
             };
             break;
         case SENSOR_SOIL_HUMIDITY:
-            manager->sensors[manager->sensor_count].ops = (Sensor_Example) {
+            manager->sensors[manager->sensor_count] = (Sensor_Example) {
                 .type = SENSOR_SOIL_HUMIDITY,
                 .handle = (SoilHumidity_Handle*)handle,
                 .ops = &soil_humidity_ops,
             };
             break;
         case SENSOR_GY30:
-            manager->sensors[manager->sensor_count].ops = (Sensor_Example) {
+            manager->sensors[manager->sensor_count] = (Sensor_Example) {
                 .type = SENSOR_GY30,
                 .handle = (GY30_Handle*)handle,
                 .ops = &gy30_ops,
@@ -95,7 +96,7 @@ static int _add_sensor(Sensors_Manager *manager, eSensorsType type, void *handle
     return 0;
 }
 
-void Sensors_Manager_Init(Sensors_Manager *manager) {
+int Sensors_Manager_Init(Sensors_Manager *manager) {
     if (!manager) return -1;
 
     manager->sensor_count = 0;
@@ -109,9 +110,11 @@ void Sensors_Manager_Init(Sensors_Manager *manager) {
     }
 
     // 添加传感器实例到管理器（需用户根据实际情况修改）
-    // 注意：添加顺序应与 main.c 中初始化顺序一致，以确保 handle 正确对应
-    for (int i = 0; i < MAX_SENSORS; i++) {
-        
-    }
+    // _add_sensor(manager, SENSOR_DS3231, (void *)&ds3231_handle);
+    // _add_sensor(manager, SENSOR_DHT22, (void *)&dht22_handle);
+    // _add_sensor(manager, SENSOR_DS18B20, (void *)&ds18b20_handle);
+    // _add_sensor(manager, SENSOR_SOIL_HUMIDITY, (void *)&soil_humidity_handle);
+    // _add_sensor(manager, SENSOR_GY30, (void *)&gy30_handle);
 
-};
+    return 0;
+}
