@@ -43,11 +43,15 @@ typedef struct {
 } Sensors_Manager;
 
 // 传感器管理器接口
+// 返回0表示成功，返回-1管理器句柄无效，返回-2传感器初始化失败
 int Sensors_Manager_Init(Sensors_Manager *manager);
+
 // 运行状态机，非阻塞，需定期调用
 void Sensors_Manager_Run(Sensors_Manager *manager);
+
 // 检查是否有数据准备好，返回0表示有数据
 int Sensors_Ready(Sensors_Manager *manager); // 检查是否有数据准备好，返回0表示有数据
+
 // 获取已准备好的数据，返回0表示成功，非0表示无数据或错误
 int Sensors_Manager_Get_Data(Sensors_Manager *manager, Sensors_Data *data);
 

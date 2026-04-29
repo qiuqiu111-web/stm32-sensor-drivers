@@ -48,21 +48,23 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/getTime.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/DHT22.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/GY30.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/DS18B20.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/DS3231.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/SoilHumidity.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/Sensor_Adapters.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Src/Sensor_Manage.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Time/getTime.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/DHT22.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/GY30.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/DS18B20.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/DS3231.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/SoilHumidity.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_manage/Src/Sensor_Adapters.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_manage/Src/Sensor_Manage.c
     
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    ${CMAKE_SOURCE_DIR}/HardWare/Inc
+    ${CMAKE_SOURCE_DIR}/HardWare/Time
+    ${CMAKE_SOURCE_DIR}/HardWare/sensor_drivers/Inc
+    ${CMAKE_SOURCE_DIR}/HardWare/sensor_manage/Inc
 )
 
 # Add project symbols (macros)

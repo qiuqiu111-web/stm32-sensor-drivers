@@ -11,6 +11,26 @@
 #include <stdint.h>
 // -----------------------------------------------------------------
 
+// 实例化传感器句柄（需用户根据实际情况修改）-----------------------------
+static DS3231_Handle ds3231_handle;
+static DHT22_Handle dht22_handle;
+static DS18B20_Handle ds18b20_handle;
+static SoilHumidity_Handle soil_humidity_handle;
+static GY30_Handle gy30_handle;
+
+// 定义传感器类型和句柄的数组
+typedef struct {
+    eSensorsType type;
+    void *handle;
+} Sensor_Config;
+
+static Sensor_Config sensor_configs[] = {
+    {SENSOR_DS3231, &ds3231_handle},
+    {SENSOR_DHT22, &dht22_handle},
+    {SENSOR_DS18B20, &ds18b20_handle},
+    {SENSOR_SOIL_HUMIDITY, &soil_humidity_handle},
+    {SENSOR_GY30, &gy30_handle},
+};
 
 // 传感器操作函数定义-----------------------------------------
 const Sensors_Ops ds3231_ops = {
@@ -50,6 +70,7 @@ const Sensors_Ops gy30_ops = {
 
 static int _add_sensor(Sensors_Manager *manager, eSensorsType type, void *handle) {
     if (manager->sensor_count >= MAX_SENSORS) return -1; // 超过最大传感器数量
+    if (!handle) return -1; // 句柄不能为空
 
     // 根据传感器类型设置对应的操作函数
     switch (type) {
@@ -104,17 +125,73 @@ int Sensors_Manager_Init(Sensors_Manager *manager) {
     manager->data_check_flag = 0;
 
     int i;
-     // 初始化数据检查标志，每个传感器对应一个位
-    for (i = 0; i < MAX_SENSORS; i++) {
+    // 添加传感器实例到管理器
+    for (int i = 0; i < (int)(sizeof(sensor_configs) / sizeof(Sensor_Config)); i++) {
+        if (_add_sensor(manager, sensor_configs[i].type, sensor_configs[i].handle) != 0) {
+            return -2;
+        }
+    }
+
+    // 传感器初始化
+    for (i = 0; i < manager->sensor_count; i++) {
+        Sensor_Example *sensor = &manager->sensors[i];
+        if (sensor->ops->init(sensor->handle) != 0) {
+            return -2;
+        }
+    }
+
+    // 初始化数据检查标志，每个传感器对应一个位
+    for (i = 0; i < manager->sensor_count; i++) {
         manager->data_check_flag |= (1 << i);
     }
 
-    // 添加传感器实例到管理器（需用户根据实际情况修改）
-    // _add_sensor(manager, SENSOR_DS3231, (void *)&ds3231_handle);
-    // _add_sensor(manager, SENSOR_DHT22, (void *)&dht22_handle);
-    // _add_sensor(manager, SENSOR_DS18B20, (void *)&ds18b20_handle);
-    // _add_sensor(manager, SENSOR_SOIL_HUMIDITY, (void *)&soil_humidity_handle);
-    // _add_sensor(manager, SENSOR_GY30, (void *)&gy30_handle);
-
     return 0;
+}
+
+void Sensors_Manager_Run(Sensors_Manager *manager) {
+    if (!manager) return;
+
+    for (int i = 0; i < manager->sensor_count; i++) {
+        Sensor_Example *sensor = &manager->sensors[i];
+        sensor->ops->run(sensor->handle);
+    }
+}
+
+int Sensors_Ready(Sensors_Manager *manager) {
+    if (!manager) return -1;
+
+    int ready_count = 0;
+    for (int i = 0; i < manager->sensor_count; i++) {
+        Sensor_Example *sensor = &manager->sensors[i];
+        if (sensor->ops->if_ready(sensor->handle) == 0) {
+            ready_count++;
+        }
+    }
+
+    // 当所有传感器都准备好时，设置数据标志
+    if (ready_count == manager->sensor_count) {
+        manager->data_flag = 1;
+        return 0; // 有数据准备好
+    } else {
+        manager->data_flag = 0;
+        return -2; // 没有数据准备好
+    }
+}
+
+int Sensors_Manager_Get_Data(Sensors_Manager *manager, Sensors_Data *data) {
+    if (!manager || !data) return -1;
+    if (manager->data_flag == 0) return -2; // 没有数据准备好
+
+    // 获取每个传感器的数据
+    for (int i = 0; i < manager->sensor_count; i++) {
+        Sensor_Example *sensor = &manager->sensors[i];
+        if (sensor->ops->get_data(sensor->handle, data) != 0) {
+            return -3; // 获取数据失败
+        }
+    }
+
+    // 获取数据成功后，清除数据标志
+    manager->data_flag = 0;
+
+    return 0; // 成功获取数据
 }

@@ -24,11 +24,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "DHT22.h" // 空气温湿度传感器 单总线协议
-#include "DS18B20.h" // 土壤温度传感器 单总线协议
-#include "SoilHumidity.h" // 土壤湿度传感器 ADC协议
-#include "GY30.h" // 光照强度传感器 I2C协议
-#include "DS3231.h" // 时钟传感器 I2C协议
+#include "Sensor_Manage.h" // 传感器管理器，统一管理多个传感器的初始化、运行和数据获取
+#include "stm32f4xx_hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,7 +93,12 @@ int main(void)
   MX_I2C2_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
-
+  Sensors_Data sensor_data; 
+  Sensors_Manager manager;
+  if (Sensors_Manager_Init(&manager) != 0) {
+      // 处理初始化错误
+      Error_Handler();
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,7 +106,14 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    
+    Sensors_Manager_Run(&manager); // 运行传感器状态机，非阻塞
+    if (Sensors_Ready(&manager) == 0) { // 检查是否有数据准备好
+        if (Sensors_Manager_Get_Data(&manager, &sensor_data) == 0) { // 获取数据
+            // 处理获取到的数据，例如打印或发送到其他模块
+            // printf("Temperature: %.2f C, Humidity: %.2f %%\n", sensor_data.temperature, sensor_data.humidity);
+            HAL_Delay(1000); // 延时1秒，避免过于频繁地获取数据
+        }
+    }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
