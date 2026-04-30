@@ -57,6 +57,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_manage/Src/Sensor_Adapters.c
     ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_manage/Src/Sensor_Manage.c
     ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/uart_comm/uart_comm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/pump_driver/pump_driver.c
     
 )
 
@@ -67,6 +68,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/HardWare/sensor_drivers/Inc
     ${CMAKE_SOURCE_DIR}/HardWare/sensor_manage/Inc
     ${CMAKE_SOURCE_DIR}/HardWare/uart_comm
+    ${CMAKE_SOURCE_DIR}/HardWare/pump_driver
 )
 
 # Add project symbols (macros)
