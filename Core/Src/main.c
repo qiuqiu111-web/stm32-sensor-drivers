@@ -20,12 +20,13 @@
 #include "main.h"
 #include "adc.h"
 #include "i2c.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Sensor_Manage.h" // 传感器管理器，统一管理多个传感器的初始化、运行和数据获取
-#include "stm32f4xx_hal.h"
+#include "uart_comm.h" // UART通信模块，负责将传感器数据通过串口发送给上位机
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,6 +93,7 @@ int main(void)
   MX_ADC1_Init();
   MX_I2C2_Init();
   MX_I2C3_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   Sensors_Data sensor_data; 
   Sensors_Manager manager;
@@ -106,13 +108,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    Sensors_Manager_Run(&manager); // 运行传感器状态机，非阻塞
-    if (Sensors_Ready(&manager) == 0) { // 检查是否有数据准备好
-        if (Sensors_Manager_Get_Data(&manager, &sensor_data) == 0) { // 获取数据
-            // 处理获取到的数据，例如打印或发送到其他模块
-            // printf("Temperature: %.2f C, Humidity: %.2f %%\n", sensor_data.temperature, sensor_data.humidity);
-            HAL_Delay(1000); // 延时1秒，避免过于频繁地获取数据
-        }
+    Sensors_Manager_Run(&manager);
+    if (Sensors_Ready(&manager) == 0 && Sensors_Manager_Get_Data(&manager, &sensor_data) == 0) {
+        UART_Comm_Send(&sensor_data, &huart6); 
     }
     /* USER CODE BEGIN 3 */
   }
