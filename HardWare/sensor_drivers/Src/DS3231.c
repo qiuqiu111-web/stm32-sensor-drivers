@@ -375,7 +375,7 @@ int ds3231_set_time(DS3231_Handle *handle, const DS3231_Time *time) {
 }
 
 
-int ds3231_ready(DS3231_Handle *handle) {
+inline int ds3231_ready(DS3231_Handle *handle) {
     if (!handle) return -1;
     return (handle->data_flag == 1) ? 0 : -2; // 0: ready, -2: no data
 }

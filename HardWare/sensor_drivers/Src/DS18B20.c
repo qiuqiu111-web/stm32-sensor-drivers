@@ -393,7 +393,7 @@ void ds18b20_run(DS18B20_Handle *handle) {
     }
 }
 
-int ds18b20_ready(DS18B20_Handle *handle) {
+inline int ds18b20_ready(DS18B20_Handle *handle) {
     if (!handle) return -1;
     return (handle->data_flag == 1) ? 0 : -2; // 0: ready, -2: no data
 }

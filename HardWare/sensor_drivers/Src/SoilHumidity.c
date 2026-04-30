@@ -124,7 +124,7 @@ void soil_humidity_run(SoilHumidity_Handle *handle) {
     }
 }
 
-int soil_humidity_ready(SoilHumidity_Handle *handle) {
+inline int soil_humidity_ready(SoilHumidity_Handle *handle) {
     if (!handle) return -1;
     return (handle->data_flag == 1) ? 0 : -2; // 0: ready, -2: no data
 }

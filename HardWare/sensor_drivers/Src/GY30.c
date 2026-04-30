@@ -193,7 +193,7 @@ void gy30_run(GY30_Handle *handle) {
     }
 }
 
-int gy30_ready(GY30_Handle *handle) {
+inline int gy30_ready(GY30_Handle *handle) {
     if (!handle) return -1;
     return (handle->data_flag == 1) ? 0 : -2; // 0: ready, -2: no data
 }
