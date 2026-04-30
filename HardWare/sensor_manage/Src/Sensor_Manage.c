@@ -155,7 +155,7 @@ int Sensors_Manager_Get_Data(Sensors_Manager *manager, Sensors_Data *data) {
     // 检查数据标志，确保数据准备好
     for (int i = 0; i < manager->sensor_count; i++) {
         Sensor_Example *sensor = &manager->sensors[i];
-        if (sensor->ops->if_ready(sensor->handle) == 0) {
+        if (sensor->ops->if_ready(sensor->handle) != 0) {
             return -2; // 数据未准备好
         }
     }
