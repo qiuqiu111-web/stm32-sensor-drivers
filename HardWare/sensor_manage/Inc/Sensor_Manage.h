@@ -45,8 +45,6 @@ typedef struct {
 typedef struct {
     int sensor_count; // 传感器数量
     Sensor_Example sensors[MAX_SENSORS]; // 传感器数组，最多支持5个传感器
-    int data_check_flag; // 数据检查标志，当数据标志位等于传感器数量时表示所有传感器数据都准备好了
-    int data_flag; // 数据标志，表示是否有新数据准备好
 } Sensors_Manager;
 
 // 传感器管理器接口
@@ -55,9 +53,6 @@ int Sensors_Manager_Init(Sensors_Manager *manager);
 
 // 运行状态机，非阻塞，需定期调用
 void Sensors_Manager_Run(Sensors_Manager *manager);
-
-// 检查是否有数据准备好，返回0表示有数据
-int Sensors_Ready(Sensors_Manager *manager); // 检查是否有数据准备好，返回0表示有数据
 
 // 获取已准备好的数据，返回0表示成功，非0表示无数据或错误
 int Sensors_Manager_Get_Data(Sensors_Manager *manager, Sensors_Data *data);

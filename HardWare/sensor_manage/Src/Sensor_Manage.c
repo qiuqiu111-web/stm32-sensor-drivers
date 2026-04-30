@@ -33,35 +33,35 @@ static Sensor_Config sensor_configs[] = {
 };
 
 // 传感器操作函数定义-----------------------------------------
-const Sensors_Ops ds3231_ops = {
+static const Sensors_Ops ds3231_ops = {
     .init = (int (*)(void *))ds3231_init,
     .run = (void (*)(void *))ds3231_run,
     .if_ready = (int (*)(void *))ds3231_ready,
     .get_data = ds3231_get_adapter, // 适配器函数
 };
 
-const Sensors_Ops dht22_ops = {
+static const Sensors_Ops dht22_ops = {
     .init = (int (*)(void *))dht22_init,
     .run = (void (*)(void *))dht22_run,
     .if_ready = (int (*)(void *))dht22_ready,
     .get_data = dht22_get_adapter, // 适配器函数
 };
 
-const Sensors_Ops ds18b20_ops = {
+static const Sensors_Ops ds18b20_ops = {
     .init = (int (*)(void *))ds18b20_init,
     .run = (void (*)(void *))ds18b20_run,
     .if_ready = (int (*)(void *))ds18b20_ready,
     .get_data = ds18b20_get_adapter, // 适配器函数
 };
 
-const Sensors_Ops soil_humidity_ops = {
+static const Sensors_Ops soil_humidity_ops = {
     .init = (int (*)(void *))soil_humidity_init,
     .run = (void (*)(void *))soil_humidity_run,
     .if_ready = (int (*)(void *))soil_humidity_ready,
     .get_data = soil_humidity_get_adapter, // 适配器函数
 };
 
-const Sensors_Ops gy30_ops = {
+static const Sensors_Ops gy30_ops = {
     .init = (int (*)(void *))gy30_init,
     .run = (void (*)(void *))gy30_run,
     .if_ready = (int (*)(void *))gy30_ready,
@@ -121,9 +121,6 @@ int Sensors_Manager_Init(Sensors_Manager *manager) {
     if (!manager) return -1;
 
     manager->sensor_count = 0;
-    manager->data_flag = 0;
-    manager->data_check_flag = 0;
-
     int i;
     // 添加传感器实例到管理器
     for (int i = 0; i < (int)(sizeof(sensor_configs) / sizeof(Sensor_Config)); i++) {
@@ -140,11 +137,6 @@ int Sensors_Manager_Init(Sensors_Manager *manager) {
         }
     }
 
-    // 初始化数据检查标志，每个传感器对应一个位
-    for (i = 0; i < manager->sensor_count; i++) {
-        manager->data_check_flag |= (1 << i);
-    }
-
     return 0;
 }
 
@@ -157,30 +149,16 @@ void Sensors_Manager_Run(Sensors_Manager *manager) {
     }
 }
 
-int Sensors_Ready(Sensors_Manager *manager) {
-    if (!manager) return -1;
+int Sensors_Manager_Get_Data(Sensors_Manager *manager, Sensors_Data *data) {
+    if (!manager || !data) return -1;
 
-    int ready_count = 0;
+    // 检查数据标志，确保数据准备好
     for (int i = 0; i < manager->sensor_count; i++) {
         Sensor_Example *sensor = &manager->sensors[i];
         if (sensor->ops->if_ready(sensor->handle) == 0) {
-            ready_count++;
+            return -2; // 数据未准备好
         }
     }
-
-    // 当所有传感器都准备好时，设置数据标志
-    if (ready_count == manager->sensor_count) {
-        manager->data_flag = 1;
-        return 0; // 有数据准备好
-    } else {
-        manager->data_flag = 0;
-        return -2; // 没有数据准备好
-    }
-}
-
-int Sensors_Manager_Get_Data(Sensors_Manager *manager, Sensors_Data *data) {
-    if (!manager || !data) return -1;
-    if (manager->data_flag == 0) return -2; // 没有数据准备好
 
     // 获取每个传感器的数据
     for (int i = 0; i < manager->sensor_count; i++) {
@@ -189,9 +167,6 @@ int Sensors_Manager_Get_Data(Sensors_Manager *manager, Sensors_Data *data) {
             return -3; // 获取数据失败
         }
     }
-
-    // 获取数据成功后，清除数据标志
-    manager->data_flag = 0;
 
     return 0; // 成功获取数据
 }
