@@ -7,7 +7,6 @@
 #include "DS18B20.h"    // 土壤温度传感器，获取土壤温度，单总线协议
 #include "SoilHumidity.h" // 土壤湿度传感器，获取土壤湿度，ADC协议
 #include "GY30.h" // 光照强度传感器，获取光照强度，I2C协议
-#include <assert.h>
 #include <stdint.h>
 // -----------------------------------------------------------------
 
