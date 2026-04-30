@@ -5,8 +5,8 @@
 #include "usart.h"
 #include "Sensor_Manage.h" // 包含传感器数据结构定义
 
-#define UART_FRAME_SIZE 27 // 定义协议帧的总大小
 #define UART_DATA_SIZE 22  // 定义数据部分的大小（Sensors_Data_Wire结构体大小）
+#define UART_FRAME_SIZE UART_DATA_SIZE + 5 // 协议帧总大小 = 数据部分 + 帧头(2字节) + 校验(1字节) + 帧尾(2字节)
 
 // 帧头和帧尾定义
 #define UART_HEADER_1 0xAA
