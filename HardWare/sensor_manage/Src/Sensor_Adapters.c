@@ -44,6 +44,15 @@ int ds3231_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
     DS3231_Time tm = {0};
     int ret = ds3231_get_time((DS3231_Handle*)handle, &tm);
-    if (ret == 0) data->time = tm;
+    if (ret == 0) {
+        data->seconds = tm.seconds;
+        data->minutes = tm.minutes;
+        data->hours = tm.hours;
+        data->day_of_week = tm.day_of_week;
+        data->date = tm.date;
+        data->month = tm.month;
+        data->year = tm.year;
+        data->century = tm.century;
+    }
     return ret;
 }

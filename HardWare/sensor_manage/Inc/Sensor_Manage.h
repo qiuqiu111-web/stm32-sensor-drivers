@@ -1,10 +1,10 @@
 #ifndef __SENSOR_MANAGE_H
 #define __SENSOR_MANAGE_H
 
+#include <stdint.h>
+
 #define MAX_SENSORS 5
 
-// 特殊数据结构体声明
-#include "DS3231.h"
 
 typedef enum {
     SENSOR_DS3231,
@@ -19,7 +19,14 @@ typedef struct {
     float humidity;    // 湿度
     float soil_humidity; // 土壤湿度
     float illuminance; // 光照强度
-    DS3231_Time time;  // 时间数据
+    uint8_t seconds;       // 秒 (0-59)
+    uint8_t minutes;       // 分 (0-59)
+    uint8_t hours;         // 时 (0-23，24小时制)
+    uint8_t day_of_week;   // 星期 (1-7，1=星期日)
+    uint8_t date;          // 日 (1-31)
+    uint8_t month;         // 月 (1-12)
+    uint8_t year;          // 年 (0-99)
+    uint8_t century;       // 世纪标志 (0=20xx，1=21xx)
 } Sensors_Data;
 
 typedef struct {
