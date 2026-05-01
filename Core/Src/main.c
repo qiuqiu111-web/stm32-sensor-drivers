@@ -20,7 +20,6 @@
 #include "main.h"
 #include "adc.h"
 #include "i2c.h"
-#include "stm32f4xx_hal.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -30,6 +29,7 @@
 #include "Sensor_Manage.h" // 传感器管理器，统一管理多个传感器的初始化、运行和数据获取
 #include "uart_comm.h" // UART通信模块，负责将传感器数据通过串口发送给上位机
 #include "pump_driver.h" // 水泵驱动模块，提供水泵的初始化、开关和调速功能
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,24 +99,29 @@ int main(void)
   MX_USART6_UART_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  // 启用 DWT 周期计数器，用于时间戳
+  DWT_Init();
   Sensors_Data sensor_data; 
   Sensors_Manager manager;
   if (Sensors_Manager_Init(&manager) != 0) {
       // 处理初始化错误
       Error_Handler();
   }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    Sensors_Manager_Run(&manager); // 启动传感器状态机，开始采集数据
-    if (Sensors_Manager_Get_Data(&manager, &sensor_data) == 0) {
-      // 成功获取数据，发送给上位机
-      UART_Comm_Send(&sensor_data, &huart6);
-      HAL_Delay(1000);
-    }
+    // Sensors_Manager_Run(&manager); // 启动传感器状态机，开始采集数据
+    // if (Sensors_Manager_Get_Data(&manager, &sensor_data) == 0) {
+    //   // 成功获取数据，发送给上位机
+    //   UART_Comm_Send(&sensor_data, &huart6);
+    //   HAL_Delay(1000);
+    // }
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -192,6 +197,8 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+    // 点亮错误指示灯
+    HAL_GPIO_WritePin(RED_ERROR_GPIO_Port, RED_ERROR_Pin, GPIO_PIN_RESET);
   }
   /* USER CODE END Error_Handler_Debug */
 }
