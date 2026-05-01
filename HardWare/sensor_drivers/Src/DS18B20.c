@@ -224,7 +224,7 @@ static uint32_t _ds18b20_get_conversion_time(DS18B20_Handle *handle) {
 
 // DS18B20初始化函数
 int ds18b20_init(DS18B20_Handle *handle) {
-    if (!handle) return -1;
+    if (!handle || !handle->gpio) return -1;
 
     // 初始状态为INIT
     handle->status = DS18B20_INIT;

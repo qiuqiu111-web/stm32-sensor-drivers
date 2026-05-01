@@ -49,7 +49,7 @@ static eGY30_error_code _gy30_check_data(GY30_Handle *handle) {
 
 // GY30初始化函数
 int gy30_init(GY30_Handle *handle) {
-    if (!handle) return -1;
+    if (!handle || !handle->i2c) return -1;
 
     // 发送上电命令
     eGY30_error_code err = _gy30_send_command(handle, GY30_POWER_ON);

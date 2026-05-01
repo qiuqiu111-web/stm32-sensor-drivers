@@ -125,6 +125,7 @@ int dht22_get(DHT22_Handle *handle, float *temperature, float *humidity) {
 
 // DHT22初始化函数
 int dht22_init(DHT22_Handle *handle) {
+    if (!handle || !handle->gpio) return -1;
     _dht22_input_mode(handle);
     if(GPIO_READ_LEVEL(handle->gpio) == GPIO_PIN_SET) {
         handle->status = DHT22_EMPTY;
