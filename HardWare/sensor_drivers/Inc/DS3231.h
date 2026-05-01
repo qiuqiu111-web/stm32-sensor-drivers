@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "func_config.h"
 
-// DS3231 I2C地址（7位地址，HAL库会自动左移1位）
+// DS3231 I2C地址
 #define DS3231_I2C_ADDR  0x68  // 7位地址：01101000
 
 // DS3231寄存器地址

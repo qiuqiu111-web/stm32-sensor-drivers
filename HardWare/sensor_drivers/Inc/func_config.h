@@ -34,13 +34,13 @@ typedef enum {
 #define I2C_DEFAULT_TIMEOUT    1000U // I2C默认超时时间（ms）
 // I2C主设备发送宏
 #define I2C_MASTER_TRANSMIT(i2c, data, size) \
-    HAL_I2C_Master_Transmit((i2c).hi2c, ((i2c).dev_addr << 1), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
+    HAL_I2C_Master_Transmit((i2c).hi2c, ((i2c).dev_addr), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
 #define I2C_MASTER_RECEIVE(i2c, data, size) \
-    HAL_I2C_Master_Receive((i2c).hi2c, ((i2c).dev_addr << 1), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
+    HAL_I2C_Master_Receive((i2c).hi2c, ((i2c).dev_addr), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
 #define I2C_MEM_WRITE(i2c, mem_addr, mem_addr_size, data, size) \
-    HAL_I2C_Mem_Write((i2c).hi2c, ((i2c).dev_addr << 1), (mem_addr), (mem_addr_size), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
+    HAL_I2C_Mem_Write((i2c).hi2c, ((i2c).dev_addr), (mem_addr), (mem_addr_size), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
 #define I2C_MEM_READ(i2c, mem_addr, mem_addr_size, data, size) \
-    HAL_I2C_Mem_Read((i2c).hi2c, ((i2c).dev_addr << 1), (mem_addr), (mem_addr_size), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
+    HAL_I2C_Mem_Read((i2c).hi2c, ((i2c).dev_addr), (mem_addr), (mem_addr_size), (uint8_t*)(data), (size), I2C_DEFAULT_TIMEOUT)
 #define I2C_IS_READY(i2c) ((i2c).hi2c->State == HAL_I2C_STATE_READY)
 
 #define GET_TIME_US()          get_current_timestamp_us()

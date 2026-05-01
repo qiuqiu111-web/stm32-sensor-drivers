@@ -110,10 +110,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART6) {
-        // 这里可以处理接收到的数据，例如将数据放入环形缓冲区
-        // RB_Write(&uart_rx_buffer, received_byte);
-    }
-}
+// HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//     if (huart->Instance == USART6) {
+//         // 这里可以处理接收到的数据，例如将数据放入环形缓冲区
+//         // RB_Write(&uart_rx_buffer, received_byte);
+//     }
+// }
 /* USER CODE END 1 */
