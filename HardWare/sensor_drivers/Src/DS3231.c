@@ -186,8 +186,7 @@ static eDS3231_error_code _ds3231_check_time(DS3231_Handle *handle) {
 
 // DS3231初始化函数
 int ds3231_init(DS3231_Handle *handle) {
-    if (!handle) return -1;
-    if (handle->i2c == NULL) return -2;
+    if (!handle || handle->i2c.hi2c == NULL) return -1;
 
     // 初始状态为INIT
     handle->status = DS3231_INIT;

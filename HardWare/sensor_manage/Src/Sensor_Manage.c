@@ -1,21 +1,24 @@
 #include "Sensor_Manage.h"
 #include "Sensor_Adapters.h"
+#include <stdint.h>
 
 // 此处添加其他传感器的头文件-----------------------------------------
+#include "i2c.h" 
 #include "DS3231.h" // 时钟传感器，获取时间和温度，I2C协议
 #include "DHT22.h"  // 空气温湿度传感器，获取温度和湿度，单总线协议
 #include "DS18B20.h"    // 土壤温度传感器，获取土壤温度，单总线协议
 #include "SoilHumidity.h" // 土壤湿度传感器，获取土壤湿度，ADC协议
 #include "GY30.h" // 光照强度传感器，获取光照强度，I2C协议
-#include <stdint.h>
 // -----------------------------------------------------------------
 
 // 实例化传感器句柄（需用户根据实际情况修改）-----------------------------
-static DS3231_Handle ds3231_handle;
+// static DS3231_Handle ds3231_handle;
 static DHT22_Handle dht22_handle;
-static DS18B20_Handle ds18b20_handle;
-static SoilHumidity_Handle soil_humidity_handle;
-static GY30_Handle gy30_handle;
+// static DS18B20_Handle ds18b20_handle;
+// static SoilHumidity_Handle soil_humidity_handle;
+// static GY30_Handle gy30_handle;
+
+// -----------------------------------------------------------------
 
 // 定义传感器类型和句柄的数组
 typedef struct {
@@ -24,11 +27,11 @@ typedef struct {
 } Sensor_Config;
 
 static Sensor_Config sensor_configs[] = {
-    {SENSOR_DS3231, &ds3231_handle},
+    // {SENSOR_DS3231, &ds3231_handle},
     {SENSOR_DHT22, &dht22_handle},
-    {SENSOR_DS18B20, &ds18b20_handle},
-    {SENSOR_SOIL_HUMIDITY, &soil_humidity_handle},
-    {SENSOR_GY30, &gy30_handle},
+    // {SENSOR_DS18B20, &ds18b20_handle},
+    // {SENSOR_SOIL_HUMIDITY, &soil_humidity_handle},
+    // {SENSOR_GY30, &gy30_handle},
 };
 
 // 传感器操作函数定义-----------------------------------------
@@ -118,6 +121,22 @@ static int _add_sensor(Sensors_Manager *manager, eSensorsType type, void *handle
 
 int Sensors_Manager_Init(Sensors_Manager *manager) {
     if (!manager) return -1;
+    
+    // 配置各个传感器的GPIO和I2C等硬件参数（需用户根据实际情况修改）-----------------
+    dht22_handle.gpio.port = GPIOC;
+    dht22_handle.gpio.pin = GPIO_PIN_10;
+
+    // ds18b20_handle.gpio.port = GPIOC;
+    // ds18b20_handle.gpio.pin = GPIO_PIN_12;
+
+    // soil_humidity_handle.hadc = &hadc1;
+
+    // // ds3231_handle.i2c.hi2c = &hi2c3;
+    // // ds3231_handle.i2c.dev_addr = DS3231_I2C_ADDR<<1; 
+
+    // gy30_handle.i2c.hi2c = &hi2c2; 
+    // gy30_handle.i2c.dev_addr = GY30_I2C_ADDR1<<1; 
+    // -----------------------------------------------------------------
 
     manager->sensor_count = 0;
     int i;

@@ -82,7 +82,7 @@ static eDHT22_error_code _dht22_receive_data(DHT22_Handle *handle) {
 }
 
 static eDHT22_error_code _dht22_check_sum_data(DHT22_Handle *handle) {
-    uint8_t checksum = handle->buffer[0] + handle->buffer[1] + handle->buffer[2] + handle->buffer[3];
+    uint32_t checksum = handle->buffer[0] + handle->buffer[1] + handle->buffer[2] + handle->buffer[3];
     if (checksum != handle->buffer[4]) {
         return DHT22_ERROR_CHECKSUM; // 校验错误
     }
@@ -125,7 +125,7 @@ int dht22_get(DHT22_Handle *handle, float *temperature, float *humidity) {
 
 // DHT22初始化函数
 int dht22_init(DHT22_Handle *handle) {
-    if (!handle || !handle->gpio) return -1;
+    if (!handle || handle->gpio.port == NULL) return -1;
     _dht22_input_mode(handle);
     if(GPIO_READ_LEVEL(handle->gpio) == GPIO_PIN_SET) {
         handle->status = DHT22_EMPTY;
@@ -148,7 +148,7 @@ void dht22_run(DHT22_Handle *handle) {
             break;
         case DHT22_READY:
             // 拉低至少800us，通知传感器准备发送数据
-                if(GET_TIME_US() - handle->start_time >= 800) { 
+                if(GET_TIME_US() - handle->start_time >= 1000) { 
                     _dht22_input_mode(handle); // 切换到输入模式，等待传感器响应
                     handle->status = DHT22_WAIT;
                     handle->start_time = GET_TIME_US(); // 记录响应开始时间
@@ -159,7 +159,7 @@ void dht22_run(DHT22_Handle *handle) {
             if(GPIO_READ_LEVEL(handle->gpio) == GPIO_PIN_RESET) { // 传感器拉低信号，响应开始
                 handle->status = DHT22_RECEIVE; // 进入接收状态
                 handle->start_time = GET_TIME_US(); // 记录接收开始时间
-            } else if (GET_TIME_US() - handle->start_time >= 80) { // 超过80us未响应，重置状态
+            } else if (GET_TIME_US() - handle->start_time >= 100) { // 超过100us未响应，重置状态
                 handle->status = DHT22_EMPTY;
             }
             break;

@@ -224,7 +224,7 @@ static uint32_t _ds18b20_get_conversion_time(DS18B20_Handle *handle) {
 
 // DS18B20初始化函数
 int ds18b20_init(DS18B20_Handle *handle) {
-    if (!handle || !handle->gpio) return -1;
+    if (!handle || handle->gpio.port == NULL) return -1;
 
     // 初始状态为INIT
     handle->status = DS18B20_INIT;
@@ -284,10 +284,6 @@ void ds18b20_run(DS18B20_Handle *handle) {
     // }
 
     switch (handle->status) {
-        case DS18B20_EMPTY:
-            // 初始状态，等待初始化
-            // 用户可以调用ds18b20_init来初始化
-            break;
 
         case DS18B20_INIT:
             // 发送复位脉冲并检测存在脉冲
@@ -375,7 +371,7 @@ void ds18b20_run(DS18B20_Handle *handle) {
                 // 用户调用ds18b20_get后data_flag会被清零
                 if (handle->data_flag == 0) {
                     // 数据已被读取，回到初始状态等待下次初始化
-                    handle->status = DS18B20_EMPTY;
+                    handle->status = DS18B20_INIT;
                 }
             } else {
                 // 数据无效，重试读取（转换已完成，无需重新转换）
@@ -388,7 +384,7 @@ void ds18b20_run(DS18B20_Handle *handle) {
 
         default:
             // 无效状态，重置为初始状态
-            handle->status = DS18B20_EMPTY;
+            handle->status = DS18B20_INIT;
             break;
     }
 }
