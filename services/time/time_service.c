@@ -1,4 +1,3 @@
-#include "func_config.h"
 #include "stm32f4xx.h"
 
 #define F_CPU SystemCoreClock // 定义CPU频率（Hz），根据实际情况修改

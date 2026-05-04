@@ -18,7 +18,7 @@ typedef struct {
 #endif
 
 #include <stdint.h>
-#include "getTime.h" // 包含时间相关的函数头文件
+#include "time_service.h"
 
 typedef enum {
     GPIO_ERROR = 0,

@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "app_config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,10 +48,18 @@
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
+osThreadId getSensorsDataTaskHandle;
+osThreadId sendDataTaskHandle;
+osThreadId receiveCommandTaskHandle;
+osThreadId controlCommandTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+extern void GetSensorsDataTask(void const * argument);
+extern void SendDataTask(void const * argument);
+extern void ReceiveCommandTask(void const * argument);
+extern void ControlCommandTask(void const * argument);
+extern int QueueInit(void);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void const * argument);
@@ -102,11 +110,23 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
+  QueueInit();
+
+  osThreadDef(getSensorsDataTask, GetSensorsDataTask, TASK_PRIO_SENSOR, 0, STACK_SENSOR);
+  getSensorsDataTaskHandle = osThreadCreate(osThread(getSensorsDataTask), NULL);
+
+  osThreadDef(sendDataTask, SendDataTask, TASK_PRIO_SEND, 0, STACK_SEND);
+  sendDataTaskHandle = osThreadCreate(osThread(sendDataTask), NULL);
+
+  osThreadDef(receiveCommandTask, ReceiveCommandTask, TASK_PRIO_RECV, 0, STACK_RECV);
+  receiveCommandTaskHandle = osThreadCreate(osThread(receiveCommandTask), NULL);
+
+  osThreadDef(controlCommandTask, ControlCommandTask, TASK_PRIO_CONTROL, 0, STACK_CONTROL);
+  controlCommandTaskHandle = osThreadCreate(osThread(controlCommandTask), NULL);
   /* USER CODE END RTOS_THREADS */
 
 }

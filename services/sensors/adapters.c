@@ -1,4 +1,4 @@
-#include "Sensor_Adapters.h"
+#include "adapters.h"
 #include "DS18B20.h"
 #include "DHT22.h"
 #include "SoilHumidity.h"

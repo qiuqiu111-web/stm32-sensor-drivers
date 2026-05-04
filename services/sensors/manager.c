@@ -1,5 +1,5 @@
-#include "Sensor_Manage.h"
-#include "Sensor_Adapters.h"
+#include "manager.h"
+#include "adapters.h"
 #include <stdint.h>
 
 // 此处添加其他传感器的头文件-----------------------------------------

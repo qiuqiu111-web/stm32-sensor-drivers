@@ -2,7 +2,7 @@
 #ifndef SENSOR_ADAPTERS_H
 #define SENSOR_ADAPTERS_H
 
-#include "Sensor_Manage.h"
+#include "manager.h"
 
 int ds18b20_get_adapter(void *handle, Sensors_Data *data);
 int dht22_get_adapter(void *handle, Sensors_Data *data);

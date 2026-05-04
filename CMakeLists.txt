@@ -48,27 +48,39 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/Time/getTime.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/DHT22.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/GY30.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/DS18B20.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/DS3231.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_drivers/Src/SoilHumidity.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_manage/Src/Sensor_Adapters.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/sensor_manage/Src/Sensor_Manage.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/uart_comm/uart_comm.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/HardWare/pump_driver/pump_driver.c
+    # --- App layer ---
+    ${CMAKE_CURRENT_SOURCE_DIR}/app/queues.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/app/task_sensor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/app/task_send.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/app/task_recv.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/app/task_control.c
+    # --- Services layer ---
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/protocol/frame_codec.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/uart_adapter/uart_hal.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/manager.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/adapters.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/DHT22.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/DS18B20.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/DS3231.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/GY30.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/SoilHumidity.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/pump/pump_driver.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/time/time_service.c
     
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    ${CMAKE_SOURCE_DIR}/HardWare/Time
-    ${CMAKE_SOURCE_DIR}/HardWare/sensor_drivers/Inc
-    ${CMAKE_SOURCE_DIR}/HardWare/sensor_manage/Inc
-    ${CMAKE_SOURCE_DIR}/HardWare/uart_comm
-    ${CMAKE_SOURCE_DIR}/HardWare/pump_driver
+    # --- App layer ---
+    ${CMAKE_SOURCE_DIR}/app
+    # --- Services layer ---
+    ${CMAKE_SOURCE_DIR}/services/protocol
+    ${CMAKE_SOURCE_DIR}/services/uart_adapter
+    ${CMAKE_SOURCE_DIR}/services/sensors
+    ${CMAKE_SOURCE_DIR}/services/sensors/devices
+    ${CMAKE_SOURCE_DIR}/services/pump
+    ${CMAKE_SOURCE_DIR}/services/time
 )
 
 # Add project symbols (macros)
