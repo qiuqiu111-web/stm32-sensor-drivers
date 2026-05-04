@@ -20,6 +20,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "adc.h"
+#include "dma.h"
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
@@ -95,6 +96,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_I2C2_Init();
   MX_I2C3_Init();
@@ -124,14 +126,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // Sensors_Manager_Run(&manager); // 启动传感器状态机，开始采集数据
-    // if (Sensors_Manager_Get_Data(&manager, &sensor_data) == 0) {
-    //   // 成功获取数据，发送给上位机
-    //   UART_Comm_Send(&sensor_data, &huart6);
-    //   HAL_Delay(1000);
-    // }
-
-
+    Error_Handler();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
