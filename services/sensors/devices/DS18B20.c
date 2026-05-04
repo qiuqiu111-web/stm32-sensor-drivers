@@ -228,6 +228,7 @@ int ds18b20_init(DS18B20_Handle *handle) {
 
     // 初始状态为INIT
     handle->status = DS18B20_INIT;
+    handle->reset_status = SET_LOW_LEVEL;
     handle->use_rom = 0;  // 默认跳过ROM
     handle->resolution = DS18B20_DEFAULT_RESOLUTION;
     handle->data_flag = 0;
@@ -278,10 +279,13 @@ int ds18b20_set_resolution(DS18B20_Handle *handle, uint8_t resolution) {
 void ds18b20_run(DS18B20_Handle *handle) {
     if (!handle) return;
 
-    // 重试机制：达到最大重试次数时的处理
-    // if (handle->retry_count >= 3) {
-    
-    // }
+    // 重试超限：重置状态机，等待下一轮 run() 重新开始
+    if (handle->retry_count >= DS18B20_MAX_RETRY) {
+        handle->retry_count = 0;
+        handle->conversion_done = 0;
+        handle->status = DS18B20_INIT;
+        return;
+    }
 
     switch (handle->status) {
 
@@ -355,6 +359,7 @@ void ds18b20_run(DS18B20_Handle *handle) {
             // 读取温度数据
             if (_ds18b20_read_scratchpad(handle) == DS18B20_OK) {
                 _ds18b20_process_data(handle);
+                handle->retry_count = 0;
                 handle->status = DS18B20_COMPLETE;
             } else {
                 // CRC错误，重试读取（转换已完成，无需重新转换）
@@ -371,6 +376,7 @@ void ds18b20_run(DS18B20_Handle *handle) {
                 // 用户调用ds18b20_get后data_flag会被清零
                 if (handle->data_flag == 0) {
                     // 数据已被读取，回到初始状态等待下次初始化
+                    handle->retry_count = 0;
                     handle->status = DS18B20_INIT;
                 }
             } else {

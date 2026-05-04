@@ -40,6 +40,8 @@
 #define DS18B20_CONV_TIME_11BIT     375U  // 11位分辨率转换时间
 #define DS18B20_CONV_TIME_12BIT     750U  // 12位分辨率转换时间
 
+#define DS18B20_MAX_RETRY           3     // 最大重试次数
+
 typedef enum {
     DS18B20_EMPTY = 0,      // 初始状态，未初始化
     DS18B20_INIT,           // 初始化状态（发送复位脉冲）
