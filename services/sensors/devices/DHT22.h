@@ -21,6 +21,8 @@ typedef enum {
     DHT22_ERROR_DATA,
 } eDHT22_error_code;
 
+#define DHT22_MAX_RETRY 3
+
 typedef struct {
     GPIO_handle gpio;      // GPIO 配置
     eDHT22_status status;  // 当前状态
@@ -28,6 +30,7 @@ typedef struct {
     uint32_t start_time;   // 时间戳（us）
 
     uint8_t data_flag;     // 数据准备好标志
+    uint8_t retry_count;   // 连续失败计数
     float temperature;     // 温度（℃）
     float humidity;        // 湿度（%RH）
 } DHT22_Handle;

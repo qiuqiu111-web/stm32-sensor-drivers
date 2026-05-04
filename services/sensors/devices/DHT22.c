@@ -37,8 +37,8 @@ static uint8_t _dht22_read_bit(DHT22_Handle *handle) {
     while (state != STATE_DONE) {
         pin_level = GPIO_READ_LEVEL(handle->gpio);
 
-        // 超时保护：如果从函数入口超过 5 ms，退出并返回 0xff 表示错误
-        if ((GET_TIME_US() - t0) > 5000U) {
+        // 超时保护：如果从函数入口超过 10 ms，退出并返回 0xff 表示错误
+        if ((GET_TIME_US() - t0) > 10000U) {
             return 0xFF; // 超时错误
         }
 
@@ -126,16 +126,24 @@ int dht22_get(DHT22_Handle *handle, float *temperature, float *humidity) {
 // DHT22初始化函数
 int dht22_init(DHT22_Handle *handle) {
     if (!handle || handle->gpio.port == NULL) return -1;
+    handle->retry_count = 0;
     _dht22_input_mode(handle);
     if(GPIO_READ_LEVEL(handle->gpio) == GPIO_PIN_SET) {
         handle->status = DHT22_EMPTY;
         return 0; // GPIO初始化成功
     }
+    handle->status = DHT22_EMPTY;
     return -1; // GPIO初始化失败
 }
 
 // DHT22状态切换函数
 void dht22_run(DHT22_Handle *handle) {
+    if (handle->retry_count >= DHT22_MAX_RETRY) {
+        handle->retry_count = 0;
+        handle->status = DHT22_EMPTY;
+        return;
+    }
+
     switch (handle->status) {
         case DHT22_EMPTY:
             // 上拉电阻信号未占用
@@ -160,12 +168,14 @@ void dht22_run(DHT22_Handle *handle) {
                 handle->status = DHT22_RECEIVE; // 进入接收状态
                 handle->start_time = GET_TIME_US(); // 记录接收开始时间
             } else if (GET_TIME_US() - handle->start_time >= 100) { // 超过100us未响应，重置状态
+                handle->retry_count++;
                 handle->status = DHT22_EMPTY;
             }
             break;
         case DHT22_RECEIVE:
             // 接收数据，40位，5字节
             if (_dht22_receive_data(handle) != DHT22_OK) {
+                handle->retry_count++;
                 handle->status = DHT22_EMPTY;
             } else {
                 handle->status = DHT22_CHECK;
@@ -177,19 +187,23 @@ void dht22_run(DHT22_Handle *handle) {
                 _dht22_process_data(handle); // 处理数据，准备好温湿度值
                 // 最后检查
                 if (_dht22_check_data(handle) == DHT22_OK) {
+                    handle->retry_count = 0;
                     handle->status = DHT22_COMPLETE;
                 } else {
+                    handle->retry_count++;
                     handle->status = DHT22_EMPTY;
                 }
             }
             else {
+                handle->retry_count++;
                 handle->status = DHT22_EMPTY; // 校验失败，重置状态
             }
             break;
         case DHT22_COMPLETE:
             // 若数据接收完成,则flag被清零，重置状态
             if(handle->data_flag != 1) {
-                handle->status = DHT22_EMPTY; 
+                handle->retry_count = 0;
+                handle->status = DHT22_EMPTY;
             }
             break;
         default:
