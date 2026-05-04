@@ -10,7 +10,7 @@
 #define I2C_MEMADD_SIZE_16BIT 2
 #endif
 
-DS3231_Time ds3231_time = {
+static DS3231_Time init_time = {
     .seconds = 0,
     .minutes = 0,
     .hours = 0,
@@ -197,7 +197,7 @@ int ds3231_init(DS3231_Handle *handle) {
     handle->control_reg = DS3231_DEFAULT_CONTROL;
 
     // 预设一个默认时间
-    handle->time = ds3231_time;
+    handle->time = init_time;
 
     return 0;  // 初始化成功
 }
