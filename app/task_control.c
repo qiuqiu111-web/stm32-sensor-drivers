@@ -8,9 +8,11 @@ void ControlCommandTask(void const *argument) {
 
     while (1) {
         if (xQueueReceive(commandQueue, &command, portMAX_DELAY) == pdPASS) {
-            if (command.command_id == 0x01) {
-                uint8_t speed_percent = command.payload;
-                Pump_SetSpeed(water_pump, speed_percent);
+            if (command.command_id == 0x01 && command.payload == 1) { 
+                // 进行一次脉冲浇水，减少决策端的不确定
+                Pump_On(water_pump);
+                vTaskDelay(pdMS_TO_TICKS(4000)); // 浇水持续4秒
+                Pump_Off(water_pump);
             }
         }
     }
