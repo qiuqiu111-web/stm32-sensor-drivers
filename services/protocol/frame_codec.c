@@ -12,16 +12,11 @@ uint8_t frame_checksum(uint8_t *data, uint8_t len) {
 
 // ============ 传感器数据 → 线格式 ============
 static void _pack_sensor_data(Sensors_Data *data, Sensors_Data_Wire *wire) {
-    wire->temperature  = data->temperature;
-    wire->humidity     = data->humidity;
-    wire->soil_humidity = data->soil_humidity;
-    wire->illuminance  = data->illuminance;
-    wire->seconds      = data->seconds;
-    wire->minutes      = data->minutes;
-    wire->hours        = data->hours;
-    wire->date         = data->date;
-    wire->month        = data->month;
-    wire->year         = data->year;
+    wire->temperature      = data->temperature;
+    wire->humidity         = data->humidity;
+    wire->soil_temperature = data->soil_temperature;
+    wire->soil_humidity    = data->soil_humidity;
+    wire->illuminance      = data->illuminance;
 }
 
 // ============ 构建传感器帧 ============

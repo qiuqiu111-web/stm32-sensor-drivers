@@ -11,22 +11,16 @@ typedef enum {
     SENSOR_DHT22,
     SENSOR_DS18B20,
     SENSOR_SOIL_HUMIDITY,
-    SENSOR_GY30
+    SENSOR_GY30,
+    SENSOR_AHT30
 } eSensorsType;
 
 typedef struct {
-    float temperature; // 温度
-    float humidity;    // 湿度
-    float soil_humidity; // 土壤湿度
-    float illuminance; // 光照强度
-    uint8_t seconds;       // 秒 (0-59)
-    uint8_t minutes;       // 分 (0-59)
-    uint8_t hours;         // 时 (0-23，24小时制)
-    uint8_t day_of_week;   // 星期 (1-7，1=星期日)
-    uint8_t date;          // 日 (1-31)
-    uint8_t month;         // 月 (1-12)
-    uint8_t year;          // 年 (0-99)
-    uint8_t century;       // 世纪标志 (0=20xx，1=21xx)
+    float temperature;      // 空气温度（AHT30）
+    float humidity;         // 空气湿度（AHT30）
+    float soil_temperature; // 土壤温度（DS18B20）
+    float soil_humidity;    // 土壤湿度
+    float illuminance;      // 光照强度
 } Sensors_Data;
 
 typedef struct {

@@ -1,8 +1,12 @@
+#include "func_config.h"
+#include "i2c.h"
 #include "main.h"
+#include <stdint.h>
 #include "GY30.h"
 
 // 发送命令到GY30
-static eGY30_error_code _gy30_send_command(GY30_Handle *handle, uint8_t cmd) {
+static eGY30_error_code _gy30_send_command(GY30_Handle *handle, uint8_t model) {
+    uint8_t cmd = model;
     HAL_StatusTypeDef hal_status = I2C_MASTER_TRANSMIT(handle->i2c, &cmd, 1);
     if (hal_status != HAL_OK) {
         return GY30_ERROR_I2C;
@@ -52,23 +56,21 @@ int gy30_init(GY30_Handle *handle) {
     if (!handle || handle->i2c.hi2c == NULL) return -1;
 
     // 发送上电命令
-    eGY30_error_code err = _gy30_send_command(handle, GY30_POWER_ON);
-    if (err != GY30_OK) {
-        return -2; // I2C通信失败
+    if (_gy30_send_command(handle, GY30_POWER_ON) != GY30_OK) {
+        return -2;
     }
 
     // 设置默认测量模式
-    err = _gy30_send_command(handle, GY30_DEFAULT_MODE);
-    if (err != GY30_OK) {
+    if (_gy30_send_command(handle, GY30_DEFAULT_MODE) != GY30_OK) {
         return -3;
     }
 
     handle->mode = GY30_DEFAULT_MODE;
     handle->status = GY30_START;
-    handle->start_time = GET_TIME_MS(); // 记录开始时间
+    handle->start_time = GET_TIME_MS();
     handle->data_flag = 0;
-    handle->retry_count = 0; // 重置重试计数
-    return 0; // 初始化成功
+    handle->retry_count = 0;
+    return 0;
 }
 
 // 设置测量模式
@@ -79,7 +81,7 @@ int gy30_set_mode(GY30_Handle *handle, uint8_t mode) {
     eGY30_error_code err = _gy30_send_command(handle, mode);
     if (err != GY30_OK) {
         // 发送失败，重置状态
-        handle->status = GY30_EMPTY;
+        handle->status = GY30_READY; 
         return -2; // I2C通信失败
     }
 
@@ -108,40 +110,29 @@ void gy30_run(GY30_Handle *handle) {
 
     // 检查重试次数是否达到上限
     if (handle->retry_count >= GY30_MAX_RETRY_COUNT) {
-        // 重试次数达到上限，重置为初始状态，让用户可以重新初始化
-        handle->status = GY30_EMPTY;
+        handle->status = GY30_READY; // 重置状态
         handle->retry_count = 0;
         handle->data_flag = 0;
         return;
     }
 
     switch (handle->status) {
-        case GY30_EMPTY:
-            // 初始状态，等待初始化
-            // 单次模式下，用户调用gy30_set_mode后会进入READY状态
-            break;
+
         case GY30_READY:
             // 准备开始测量，发送测量命令
             if (_gy30_send_command(handle, handle->mode) == GY30_OK) {
                 handle->status = GY30_START;
                 handle->start_time = GET_TIME_MS(); // 记录开始时间
                 handle->retry_count = 0; // 重置重试计数
-            }
-            else {
-                // 发送失败，增加重试计数并重置状态
+            } else {
                 handle->retry_count++;
-                handle->status = GY30_EMPTY;
             }
             break;
 
         case GY30_START:
             // 已发送测量命令，根据模式等待测量时间
             {
-                uint32_t measure_time = (handle->mode == GY30_CONT_LR_MODE ||
-                                         handle->mode == GY30_ONE_LR_MODE) ?
-                                         GY30_MEASURE_TIME_LR : GY30_MEASURE_TIME_HR;
-
-                if (GET_TIME_MS() - handle->start_time >= measure_time) {
+                if (GET_TIME_MS() - handle->start_time >= GY30_MEASURE_TIME_HR) {
                     handle->status = GY30_READ;
                 }
             }
@@ -151,8 +142,10 @@ void gy30_run(GY30_Handle *handle) {
             // 读取测量数据
             if (_gy30_read_data(handle) == GY30_OK) {
                 _gy30_process_data(handle);
-                handle->status = GY30_COMPLETE;
-                handle->retry_count = 0; // 重置重试计数
+                if (_gy30_check_data(handle) == GY30_OK) {
+                    handle->status = GY30_COMPLETE;
+                    handle->retry_count = 0; // 重置重试计数
+                }
             }
             else {
                 handle->retry_count++;
@@ -161,34 +154,24 @@ void gy30_run(GY30_Handle *handle) {
 
         case GY30_COMPLETE:
             // 数据校验
-            if (_gy30_check_data(handle) == GY30_OK) {
-                // 数据有效，保持在COMPLETE状态等待用户读取
-                // 用户调用gy30_get后data_flag会被清零
-                if (handle->data_flag == 0) {
-                    // 数据已被读取，准备下一次测量
-                    if (handle->mode == GY30_CONT_HR_MODE ||
-                        handle->mode == GY30_CONT_HR_MODE2 ||
-                        handle->mode == GY30_CONT_LR_MODE) {
-                        // 连续模式：重新开始测量
-                        handle->status = GY30_START;
-                        handle->start_time = GET_TIME_MS();
-                    } else {
-                        // 单次模式：回到初始状态
-                        handle->status = GY30_EMPTY;
-                    }
+            if (handle->data_flag == 0) {
+                // 数据已被读取，准备下一次测量
+                if (handle->mode == GY30_CONT_HR_MODE ||
+                    handle->mode == GY30_CONT_HR_MODE2 ||
+                    handle->mode == GY30_CONT_LR_MODE) {
+                    // 连续模式：重新开始测量
+                    handle->status = GY30_START;
+                    handle->start_time = GET_TIME_MS();
+                } else {
+                    // 单次模式：回到初始状态
+                    handle->status = GY30_READY;
                 }
-            } else {
-                // 数据无效，增加重试计数并重新测量
-                handle->retry_count++;
-                handle->status = GY30_START;
-                handle->start_time = GET_TIME_MS(); // 重新开始计时
-                handle->data_flag = 0;
             }
             break;
 
         default:
             // 无效状态，重置为初始状态
-            handle->status = GY30_EMPTY;
+            handle->status = GY30_READY;
             break;
     }
 }

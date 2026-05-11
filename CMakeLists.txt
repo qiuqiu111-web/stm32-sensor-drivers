@@ -64,6 +64,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/DS3231.c
     ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/GY30.c
     ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/SoilHumidity.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/services/sensors/devices/AHT30.c
     ${CMAKE_CURRENT_SOURCE_DIR}/services/pump/pump_driver.c
     ${CMAKE_CURRENT_SOURCE_DIR}/services/time/time_service.c
     

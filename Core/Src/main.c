@@ -96,11 +96,17 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_I2C2_Init();
-  MX_I2C3_Init();
   MX_USART6_UART_Init();
   MX_TIM3_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-
+  // uint8_t addr_buf = 0; // addr_buf[0]存储设备数量，后续存储设备地址
+  // if (HAL_I2C_IsDeviceReady(&hi2c1, (0x38 << 1), 1, 10) == HAL_OK) {
+  //     addr_buf = 0x38; // 存储设备地址
+  // }
+  // else {
+  //   while (1);
+  // }
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */

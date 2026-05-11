@@ -9,5 +9,6 @@ int dht22_get_adapter(void *handle, Sensors_Data *data);
 int soil_humidity_get_adapter(void *handle, Sensors_Data *data);
 int gy30_get_adapter(void *handle, Sensors_Data *data);
 int ds3231_get_adapter(void *handle, Sensors_Data *data);
+int aht30_get_adapter(void *handle, Sensors_Data *data);
 
 #endif // SENSOR_ADAPTERS_H

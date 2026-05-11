@@ -4,12 +4,13 @@
 #include "SoilHumidity.h"
 #include "GY30.h"
 #include "DS3231.h"
+#include "AHT30.h"
 
 int ds18b20_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
     float temp = 0.0f;
     int ret = ds18b20_get((DS18B20_Handle*)handle, &temp);
-    if (ret == 0) data->temperature = temp;
+    if (ret == 0) data->soil_temperature = temp;
     return ret;
 }
 
@@ -41,18 +42,19 @@ int gy30_get_adapter(void *handle, Sensors_Data *data) {
 }
 
 int ds3231_get_adapter(void *handle, Sensors_Data *data) {
+    // DS3231时间字段已从Sensors_Data移除，此适配器暂不可用
+    (void)handle;
+    (void)data;
+    return -1;
+}
+
+int aht30_get_adapter(void *handle, Sensors_Data *data) {
     if (!handle || !data) return -1;
-    DS3231_Time tm = {0};
-    int ret = ds3231_get_time((DS3231_Handle*)handle, &tm);
+    float temp = 0.0f, hum = 0.0f;
+    int ret = aht30_get((AHT30_Handle*)handle, &temp, &hum);
     if (ret == 0) {
-        data->seconds = tm.seconds;
-        data->minutes = tm.minutes;
-        data->hours = tm.hours;
-        data->day_of_week = tm.day_of_week;
-        data->date = tm.date;
-        data->month = tm.month;
-        data->year = tm.year;
-        data->century = tm.century;
+        data->temperature = temp;
+        data->humidity = hum;
     }
     return ret;
 }

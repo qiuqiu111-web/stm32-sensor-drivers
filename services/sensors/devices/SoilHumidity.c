@@ -2,26 +2,6 @@
 #include "func_config.h"
 #include "SoilHumidity.h"
 
-// 启动ADC转换
-static eSoilHumidity_error_code _soil_humidity_start_conv(SoilHumidity_Handle *handle) {
-    if (HAL_ADC_Start(handle->hadc) != HAL_OK) {
-        return SOIL_HUMIDITY_ERROR_ADC;
-    }
-    return SOIL_HUMIDITY_OK;
-}
-
-// 读取ADC转换结果
-static eSoilHumidity_error_code _soil_humidity_read_conv(SoilHumidity_Handle *handle) {
-    if (HAL_ADC_PollForConversion(handle->hadc, 100) == HAL_OK) {
-        handle->raw_data = HAL_ADC_GetValue(handle->hadc);
-        HAL_ADC_Stop(handle->hadc);
-        return SOIL_HUMIDITY_OK;
-    } else {
-        HAL_ADC_Stop(handle->hadc);
-        return SOIL_HUMIDITY_ERROR_TIMEOUT;
-    }
-}
-
 // 计算土壤湿度百分比
 static void _soil_humidity_calc(SoilHumidity_Handle *handle) {
     if (handle->calibrated) {
@@ -89,26 +69,36 @@ void soil_humidity_run(SoilHumidity_Handle *handle) {
     switch (handle->status) {
 
         case SOIL_HUMIDITY_READY:
-            // 准备开始测量，进入校准（启动ADC转换）
-            if (_soil_humidity_start_conv(handle) == SOIL_HUMIDITY_OK) {
-                handle->status = SOIL_HUMIDITY_CALIBRATE;
-                handle->start_time = GET_TIME_MS();
-                handle->retry_count = 0;
-            } else {
+            // 启动ADC连续转换（需CubeMX中配置ADC为Continuous Conversion Mode）
+            if (HAL_ADC_Start(handle->hadc) != HAL_OK) {
                 handle->retry_count++;
+            } else {
+                handle->status = SOIL_HUMIDITY_CALIBRATE;
+                handle->retry_count = 0;
             }
             break;
 
-        case SOIL_HUMIDITY_CALIBRATE:
-            // 已启动ADC转换，等待转换完成并读取数据
-            if (_soil_humidity_read_conv(handle) == SOIL_HUMIDITY_OK) {
-                _soil_humidity_calc(handle);
-                handle->status = SOIL_HUMIDITY_COMPLETE;
-                handle->retry_count = 0;
-            } else {
-                handle->retry_count++;
+        case SOIL_HUMIDITY_CALIBRATE: {
+            // 多次轮询取平均，只启动一次ADC，不反复启停
+            uint32_t acc = 0;
+
+            for (uint8_t n = 0; n < SOIL_HUMIDITY_SAMPLE_COUNT; n++) {
+                if (HAL_ADC_PollForConversion(handle->hadc, 100) != HAL_OK) {
+                    HAL_ADC_Stop(handle->hadc);
+                    handle->retry_count++;
+                    handle->status = SOIL_HUMIDITY_READY;
+                    return;
+                }
+                acc += HAL_ADC_GetValue(handle->hadc);
             }
+
+            HAL_ADC_Stop(handle->hadc);
+            handle->raw_data = (uint16_t)(acc / SOIL_HUMIDITY_SAMPLE_COUNT);
+            _soil_humidity_calc(handle);
+            handle->status = SOIL_HUMIDITY_COMPLETE;
+            handle->retry_count = 0;
             break;
+        }
 
         case SOIL_HUMIDITY_COMPLETE:
             // 数据就绪，等待用户读取
