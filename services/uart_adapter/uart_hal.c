@@ -28,6 +28,7 @@ static TaskHandle_t recv_task_handle = NULL;
 void UART_Comm_StartReceive(UART_HandleTypeDef *huart, TaskHandle_t task_handle) {
     recv_task_handle = task_handle;
     HAL_UART_Receive_DMA(huart, rx_buf, UART_RX_BUF_SIZE);
+    __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);  // 启用 IDLE 中断
 }
 
 void UART_Comm_IdleHandler(UART_HandleTypeDef *huart) {

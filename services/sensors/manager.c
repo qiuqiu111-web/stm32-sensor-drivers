@@ -131,8 +131,6 @@ int Sensors_Manager_Init(Sensors_Manager *manager) {
     if (!manager) return -1;
     
     Sensor_Config sensor_configs[] = {
-    // {SENSOR_DS3231, &ds3231_handle},
-    // {SENSOR_DHT22, &dht22_handle},
     {SENSOR_DS18B20, &ds18b20_handle},
     {SENSOR_SOIL_HUMIDITY, &soil_humidity_handle},
     {SENSOR_GY30, &gy30_handle},
@@ -171,7 +169,7 @@ int Sensors_Manager_Init(Sensors_Manager *manager) {
     for (i = 0; i < manager->sensor_count; i++) {
         Sensor_Example *sensor = &manager->sensors[i];
         if (sensor->ops->init(sensor->handle) != 0) {
-            return -2;
+            return -3;
         }
     }
 
