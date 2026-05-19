@@ -138,21 +138,15 @@ int Sensors_Manager_Init(Sensors_Manager *manager) {
     };
 
     // 配置各个传感器的GPIO和I2C等硬件参数（需用户根据实际情况修改）-----------------
-    // dht22_handle.gpio.port = GPIOC;
-    // dht22_handle.gpio.pin = GPIO_PIN_10;
-
     ds18b20_handle.gpio.port = GPIOC;
     ds18b20_handle.gpio.pin = GPIO_PIN_12;
 
     soil_humidity_handle.hadc = &hadc1;
 
-    // ds3231_handle.i2c.hi2c = &hi2c1;
-    // ds3231_handle.i2c.dev_addr = DS3231_I2C_ADDR<<1; 
-
     gy30_handle.i2c.hi2c = &hi2c2;
     gy30_handle.i2c.dev_addr = GY30_I2C_ADDR1<<1;
 
-    aht30_handle.i2c.hi2c = &hi2c1;
+    aht30_handle.i2c.hi2c = &hi2c3;
     aht30_handle.i2c.dev_addr = AHT30_I2C_ADDR<<1;
     // -----------------------------------------------------------------
 
