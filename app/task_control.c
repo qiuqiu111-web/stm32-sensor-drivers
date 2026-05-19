@@ -5,6 +5,7 @@
 void ControlCommandTask(void const *argument) {
     UART_Command command;
     pump_dev_t *water_pump = Pump_Create(&htim3, TIM_CHANNEL_1);
+    Pump_Init(water_pump);  // 启动 TIM3 PWM 输出
 
     while (1) {
         if (xQueueReceive(commandQueue, &command, portMAX_DELAY) == pdPASS) {
